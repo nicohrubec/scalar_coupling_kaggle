@@ -4,7 +4,7 @@ import numpy as np
 from src import configs
 
 
-def do_preprocessing(debug=False):
+def do_preprocessing(debug=False, save=True):
     train = pd.read_csv(configs.train, index_col='id')
     test = pd.read_csv(configs.test, index_col='id')
     structures = pd.read_csv(configs.structures).set_index('molecule_name')
@@ -14,12 +14,6 @@ def do_preprocessing(debug=False):
         test = test.sample(frac=.01, random_state=42)
 
     target = train.pop('scalar_coupling_constant')
-    train, test = do_engineering(train, test, structures, debug=debug)
-
-    return train, test, target, structures
-
-
-def do_engineering(train, test, structures, debug=False, save=True):
     train = get_representation(train, structures)
     test = get_representation(test, structures)
 
@@ -27,11 +21,20 @@ def do_engineering(train, test, structures, debug=False, save=True):
         if debug:
             np.save(configs.train_fin_debug, train)
             np.save(configs.test_fin_debug, test)
+            np.save(configs.target_fin_debug, target)
         else:
             np.save(configs.train_fin, train)
             np.save(configs.test_fin, test)
+            np.save(configs.target_fin, target)
 
-    return train, test
+    return train, test, target
+
+
+def load_preprocessed(debug=False):  # returns train, test, target
+    if debug:
+        return np.load(configs.train_fin_debug), np.load(configs.test_fin_debug), np.load(configs.target_fin_debug)
+    else:
+        return np.load(configs.train_fin), np.load(configs.test_fin), np.load(configs.target_fin)
 
 
 def get_representation(df, structures):
