@@ -14,13 +14,22 @@ def do_preprocessing(debug=False):
         test = test.sample(frac=.01, random_state=42)
 
     target = train.pop('scalar_coupling_constant')
+    train, test = do_engineering(train, test, structures, debug=debug)
 
     return train, test, target, structures
 
 
-def do_engineering(train, test, structures):
+def do_engineering(train, test, structures, debug=False, save=True):
     train = get_representation(train, structures)
     test = get_representation(test, structures)
+
+    if save:
+        if debug:
+            np.save(configs.train_fin_debug, train)
+            np.save(configs.test_fin_debug, test)
+        else:
+            np.save(configs.train_fin, train)
+            np.save(configs.test_fin, test)
 
     return train, test
 
