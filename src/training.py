@@ -5,7 +5,7 @@ from torch.utils.data import TensorDataset, DataLoader
 import torch.nn as nn
 import torch.optim as optim
 from src.model import PointCNN
-
+from src import utils
 
 def train_KFolds(train, test, target, molecules, n_folds=5, seed=42, debug=False):
     oof = np.zeros(len(train))
@@ -13,6 +13,7 @@ def train_KFolds(train, test, target, molecules, n_folds=5, seed=42, debug=False
     gkf = GroupKFold(n_splits=n_folds)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     criterion = nn.L1Loss()
+    utils.set_seed(seed)
 
     for fold, (train_idx, val_idx) in enumerate(gkf.split(train, target, groups=molecules), 1):
         if debug:
