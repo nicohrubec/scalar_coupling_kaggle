@@ -31,7 +31,7 @@ def train_KFolds(train, test, target, molecules, n_folds=5, seed=42, debug=False
         model = PointCNN().to(device).float()
         optimizer = optim.Adam(model.parameters(), lr=.0003)
 
-        for epoch in range(1, 2):
+        for epoch in range(1, 10):
             trn_loss = 0.0
             val_loss = 0.0
 
@@ -45,6 +45,7 @@ def train_KFolds(train, test, target, molecules, n_folds=5, seed=42, debug=False
                 loss = criterion(outputs, targets)
                 trn_loss += loss.item()
 
+                loss.backward()
                 optimizer.step()
                 optimizer.zero_grad()
 
@@ -53,7 +54,7 @@ def train_KFolds(train, test, target, molecules, n_folds=5, seed=42, debug=False
                 print(targets)
 
             with torch.no_grad():
-                print('[%d] loss: %.3f' % (epoch, trn_loss / len(train_loader)))
+                print('[%d] loss: %.5f' % (epoch, trn_loss / len(train_loader)))
 
                 for i, (features, targets) in enumerate(val_loader):
                     if i > 0:
@@ -66,4 +67,4 @@ def train_KFolds(train, test, target, molecules, n_folds=5, seed=42, debug=False
                     val_loss += loss.item()
                     oof[(i * 4):((i+1)*4)] = outputs.cpu().numpy()
 
-                print('[%d] validation loss: %.3f' % (epoch, val_loss / len(val_loader)))
+                print('[%d] validation loss: %.5f' % (epoch, val_loss / len(val_loader)))
