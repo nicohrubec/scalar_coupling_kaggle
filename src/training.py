@@ -33,6 +33,7 @@ def train_KFolds(train, test, target, molecules, n_folds=5, seed=42, debug=False
 
         for epoch in range(1, 2):
             trn_loss = 0.0
+            val_loss = 0.0
 
             for i, (features, targets) in enumerate(train_loader):
                 if i > 0:
@@ -50,3 +51,19 @@ def train_KFolds(train, test, target, molecules, n_folds=5, seed=42, debug=False
                 print(trn_loss)
                 print(outputs)
                 print(targets)
+
+            with torch.no_grad():
+                print('[%d] loss: %.3f' % (epoch, trn_loss / len(train_loader)))
+
+                for i, (features, targets) in enumerate(val_loader):
+                    if i > 0:
+                        break
+                    features, targets = features.float().to(device), targets.to(device)
+
+                    model.eval()
+                    outputs = model(features)
+                    loss = criterion(outputs, targets)
+                    val_loss += loss.item()
+                    oof[(i * 4):((i+1)*4)] = outputs.cpu().numpy()
+
+                print('[%d] validation loss: %.3f' % (epoch, val_loss / len(val_loader)))

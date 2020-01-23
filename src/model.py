@@ -13,7 +13,6 @@ class PointCNN(nn.Module):
         self.dense1 = nn.Linear(16, 1)
 
     def forward(self, x):
-        print(x.shape)
         x = self.conv1(x)
         x = self.relu(x)
         x = self.pool(x)
