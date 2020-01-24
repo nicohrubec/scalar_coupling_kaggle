@@ -10,7 +10,7 @@ from torch.utils.tensorboard import SummaryWriter
 import time
 
 
-def train_KFolds(train, test, target, molecules, n_folds=5, seed=42, debug=False):
+def train_KFolds(train, test, target, molecules, batch_size=1024, n_folds=5, seed=42, debug=False):
     oof = np.zeros(len(train))
     preds = np.zeros(len(test))
     gkf = GroupKFold(n_splits=n_folds)
@@ -28,8 +28,8 @@ def train_KFolds(train, test, target, molecules, n_folds=5, seed=42, debug=False
         train_set = TensorDataset(xtrain, ytrain)
         val_set = TensorDataset(xval, yval)
 
-        train_loader = DataLoader(train_set, batch_size=4)
-        val_loader = DataLoader(val_set, batch_size=4)
+        train_loader = DataLoader(train_set, batch_size=batch_size)
+        val_loader = DataLoader(val_set, batch_size=batch_size)
 
         model = PointCNN().to(device).float()
         optimizer = optim.Adam(model.parameters(), lr=.0003)
@@ -65,7 +65,7 @@ def train_KFolds(train, test, target, molecules, n_folds=5, seed=42, debug=False
                     outputs = model(features)
                     loss = criterion(outputs, targets)
                     val_loss += loss.item()
-                    oof[(i * 4):((i+1)*4)] = outputs.cpu().numpy()
+                    # oof[(i * batch_size):((i+1)*batch_size)] = outputs.cpu().numpy()
 
                 print('[%d] validation loss: %.5f' % (epoch, val_loss / len(val_loader)))
         writer.close()
