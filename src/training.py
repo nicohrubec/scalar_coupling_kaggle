@@ -6,6 +6,9 @@ import torch.nn as nn
 import torch.optim as optim
 from src.model import PointCNN
 from src import utils
+from torch.utils.tensorboard import SummaryWriter
+import time
+
 
 def train_KFolds(train, test, target, molecules, n_folds=5, seed=42, debug=False):
     oof = np.zeros(len(train))
@@ -31,11 +34,15 @@ def train_KFolds(train, test, target, molecules, n_folds=5, seed=42, debug=False
         model = PointCNN().to(device).float()
         optimizer = optim.Adam(model.parameters(), lr=.0003)
 
+        summary_path = 'runs/' + time.strftime("%Y%m%d-%H%M%S")
+        writer = SummaryWriter(summary_path)
+
         for epoch in range(1, 10):
             trn_loss = 0.0
             val_loss = 0.0
 
             for i, (features, targets) in enumerate(train_loader):
+                writer.add_graph(model, features.float())
                 if i > 0:
                     break
                 features, targets = features.float().to(device), targets.to(device)
@@ -55,6 +62,7 @@ def train_KFolds(train, test, target, molecules, n_folds=5, seed=42, debug=False
 
             with torch.no_grad():
                 print('[%d] loss: %.5f' % (epoch, trn_loss / len(train_loader)))
+                writer.add_scalar('training loss', trn_loss, epoch)
 
                 for i, (features, targets) in enumerate(val_loader):
                     if i > 0:
@@ -68,3 +76,4 @@ def train_KFolds(train, test, target, molecules, n_folds=5, seed=42, debug=False
                     oof[(i * 4):((i+1)*4)] = outputs.cpu().numpy()
 
                 print('[%d] validation loss: %.5f' % (epoch, val_loss / len(val_loader)))
+        writer.close()
