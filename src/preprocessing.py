@@ -10,8 +10,8 @@ def do_preprocessing(debug=False, save=True):
     structures = pd.read_csv(configs.structures).set_index('molecule_name')
 
     if debug:
-        train = train.sample(frac=.01, random_state=42)
-        test = test.sample(frac=.01, random_state=42)
+        train = train.sample(frac=.001, random_state=42)
+        test = test.sample(frac=.001, random_state=42)
 
     target = train.pop('scalar_coupling_constant')
     molecules = train.molecule_name.values

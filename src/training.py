@@ -43,8 +43,6 @@ def train_KFolds(train, test, target, molecules, n_folds=5, seed=42, debug=False
 
             for i, (features, targets) in enumerate(train_loader):
                 writer.add_graph(model, features.float())
-                if i > 0:
-                    break
                 features, targets = features.float().to(device), targets.to(device)
 
                 model.train()
@@ -56,17 +54,11 @@ def train_KFolds(train, test, target, molecules, n_folds=5, seed=42, debug=False
                 optimizer.step()
                 optimizer.zero_grad()
 
-                print(trn_loss)
-                print(outputs)
-                print(targets)
-
             with torch.no_grad():
                 print('[%d] loss: %.5f' % (epoch, trn_loss / len(train_loader)))
                 writer.add_scalar('training loss', trn_loss, epoch)
 
                 for i, (features, targets) in enumerate(val_loader):
-                    if i > 0:
-                        break
                     features, targets = features.float().to(device), targets.to(device)
 
                     model.eval()
