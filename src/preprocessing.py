@@ -61,10 +61,10 @@ def load_preprocessed(debug=False):  # returns train, test, target, molecules
 
 
 def get_representation(df, structures):
-    new_df = np.zeros((len(df), 29 * 4))  # (number of samples, max atoms in molecule x number of features)
+    new_df = np.zeros((len(df), 29 * 5))  # (number of samples, max atoms in molecule x number of features)
 
     for index, sample in enumerate(df.iterrows()):
-        sample_df = np.zeros((29, 4))
+        sample_df = np.zeros((29, 5))
 
         # retrieve the molecule name for a particular bond
         data = sample[1]  # iterrows returns tuple of (index, data)
@@ -73,6 +73,7 @@ def get_representation(df, structures):
         # get x y z coordinates of all the atoms in the given molecule as np array
         mol_structure = structures.loc[mol]
         num_atoms = len(mol_structure)
+        atom_types = mol_structure[['atom']].values
         mol_structure = mol_structure[['x', 'y', 'z']].values
 
         # get coordinates of the two atoms in the bond
@@ -82,12 +83,12 @@ def get_representation(df, structures):
         # calculate center by taking the mean of the coordinates of the atoms in the bond
         bond_center = np.divide(np.add(atom1, atom2), 2)
         mol_structure = np.subtract(mol_structure, bond_center)
-        mol_structure = np.hstack((mol_structure, np.ones((num_atoms, 1))))  # indicator that these rows correspond to an atom not padding
+        mol_structure = np.hstack((mol_structure, atom_types,  np.ones((num_atoms, 1))))  # indicator that these rows correspond to an atom not padding
         sample_df[:num_atoms] = mol_structure
 
         sample_df = sample_df.flatten()
         new_df[index] = sample_df
 
-    new_df = np.reshape(new_df, (len(df), 29, 4))
+    new_df = np.reshape(new_df, (len(df), 29, 5))
 
     return new_df
