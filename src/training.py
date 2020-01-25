@@ -56,7 +56,7 @@ def train_KFolds(train, test, target, molecules, batch_size=1024, n_folds=5, see
 
             with torch.no_grad():
                 print('[%d] loss: %.5f' % (epoch, trn_loss / len(train_loader)))
-                writer.add_scalar('training loss', trn_loss, epoch)
+                writer.add_scalar('training loss', trn_loss / len(train_loader), epoch)
 
                 for i, (features, targets) in enumerate(val_loader):
                     features, targets = features.float().to(device), targets.to(device)
@@ -68,4 +68,5 @@ def train_KFolds(train, test, target, molecules, batch_size=1024, n_folds=5, see
                     # oof[(i * batch_size):((i+1)*batch_size)] = outputs.cpu().numpy()
 
                 print('[%d] validation loss: %.5f' % (epoch, val_loss / len(val_loader)))
+                writer.add_scalar('training loss', val_loss / len(val_loader), epoch)
         writer.close()
