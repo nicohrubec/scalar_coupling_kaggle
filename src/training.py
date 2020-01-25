@@ -37,7 +37,7 @@ def train_KFolds(train, test, target, molecules, batch_size=1024, n_folds=5, see
         summary_path = 'runs/' + time.strftime("%Y%m%d-%H%M%S")
         writer = SummaryWriter(summary_path)
 
-        for epoch in range(1, 10):
+        for epoch in range(1, 70):
             trn_loss = 0.0
             val_loss = 0.0
 
@@ -68,5 +68,5 @@ def train_KFolds(train, test, target, molecules, batch_size=1024, n_folds=5, see
                     # oof[(i * batch_size):((i+1)*batch_size)] = outputs.cpu().numpy()
 
                 print('[%d] validation loss: %.5f' % (epoch, val_loss / len(val_loader)))
-                writer.add_scalar('training loss', val_loss / len(val_loader), epoch)
+                writer.add_scalar('validation loss', val_loss / len(val_loader), epoch)
         writer.close()
