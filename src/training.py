@@ -28,7 +28,7 @@ def train_KFolds(train, test, target, molecules, batch_size=1024, n_folds=5, see
         train_set = TensorDataset(xtrain, ytrain)
         val_set = TensorDataset(xval, yval)
 
-        train_loader = DataLoader(train_set, batch_size=batch_size)
+        train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
         val_loader = DataLoader(val_set, batch_size=batch_size)
 
         model = PointCNN().to(device).float()
