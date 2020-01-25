@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from sklearn.preprocessing import LabelEncoder
 
 from src import configs
 
@@ -15,6 +16,9 @@ def do_preprocessing(debug=False, save=True):
 
     target = train.pop('scalar_coupling_constant')
     molecules = train.molecule_name.values
+
+    train, test, structures = encode_categories(train, test, structures)
+
     train = get_representation(train, structures)
     test = get_representation(test, structures)
 
@@ -31,6 +35,20 @@ def do_preprocessing(debug=False, save=True):
             np.save(configs.molecules_fin, molecules)
 
     return train, test, target, molecules
+
+
+def encode_categories(train, test, structures):
+    traintest = pd.concat([train, test], axis=0)
+
+    # encode atom type and coupling type as integers
+    le = LabelEncoder()
+    structures['atom'] = le.fit_transform(structures['atom'])
+    traintest['type'] = le.fit_transform(traintest['type'])
+
+    train = traintest[:len(train)]
+    test = traintest[len(train):]
+
+    return train, test, structures
 
 
 def load_preprocessed(debug=False):  # returns train, test, target, molecules
