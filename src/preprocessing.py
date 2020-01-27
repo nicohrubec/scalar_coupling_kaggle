@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
+from numpy import linalg
 
 from src import configs
 
@@ -61,10 +62,10 @@ def load_preprocessed(debug=False):  # returns train, test, target, molecules
 
 
 def get_representation(df, structures):
-    new_df = np.zeros((len(df), 29 * 6))  # (number of samples, max atoms in molecule x number of features)
+    new_df = np.zeros((len(df), 29 * 9))  # (number of samples, max atoms in molecule x number of features)
 
     for index, sample in enumerate(df.iterrows()):
-        sample_df = np.zeros((29, 6))
+        sample_df = np.zeros((29, 9))
 
         # retrieve the molecule name for a particular bond
         data = sample[1]  # iterrows returns tuple of (index, data)
@@ -85,13 +86,23 @@ def get_representation(df, structures):
         bond_center = np.divide(np.add(atom1, atom2), 2)
         # repeat bond center vector for each atom in the molecule
         bond_center = np.tile(bond_center, (num_atoms, 1))
-        mol_structure = np.subtract(mol_structure, bond_center)
-        mol_structure = np.hstack((mol_structure, np.ones((num_atoms, 1)) * coupling_type, atom_types,  np.ones((num_atoms, 1))))  # indicator that these rows correspond to an atom not padding
+        mol_structure_centered = np.subtract(mol_structure, bond_center)
+        # distances to bond center
+        dists_center = np.reshape(linalg.norm(mol_structure, axis=1), (num_atoms, 1))
+        # dists to atoms in the bond
+        atom1 = np.tile(atom1, (num_atoms, 1))
+        atom1_dists = np.reshape(linalg.norm(np.subtract(mol_structure, atom1), axis=1), (num_atoms, 1))
+        atom2 = np.tile(atom2, (num_atoms, 1))
+        atom2_dists = np.reshape(linalg.norm(np.subtract(mol_structure, atom2), axis=1), (num_atoms, 1))
+
+        mol_structure = np.hstack((mol_structure_centered, dists_center, atom1_dists, atom2_dists,
+                                   np.ones((num_atoms, 1)) * coupling_type, atom_types,
+                                   np.ones((num_atoms, 1))))  # indicator that these rows correspond to an atom not padding
         sample_df[:num_atoms] = mol_structure
 
         sample_df = sample_df.flatten()
         new_df[index] = sample_df
 
-    new_df = np.reshape(new_df, (len(df), 29, 6))
+    new_df = np.reshape(new_df, (len(df), 29, 9))
 
     return new_df
