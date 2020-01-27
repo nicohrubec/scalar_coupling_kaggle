@@ -11,7 +11,7 @@ class PointCNN(nn.Module):
         self.conv2 = nn.Conv1d(in_channels=512, out_channels=256, kernel_size=1)
         self.conv3 = nn.Conv1d(in_channels=256, out_channels=128, kernel_size=1)
         self.relu = nn.ReLU()
-        self.pool = nn.AvgPool1d(kernel_size=4)
+        self.pool = nn.AvgPool1d(kernel_size=9)
         self.dense1 = nn.Linear(128, 1024)
         self.dense2 = nn.Linear(1024, 4096)
         self.dense3 = nn.Linear(4096, 2048)
