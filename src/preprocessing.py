@@ -83,6 +83,8 @@ def get_representation(df, structures):
 
         # calculate center by taking the mean of the coordinates of the atoms in the bond
         bond_center = np.divide(np.add(atom1, atom2), 2)
+        # repeat bond center vector for each atom in the molecule
+        bond_center = np.tile(bond_center, (num_atoms, 1))
         mol_structure = np.subtract(mol_structure, bond_center)
         mol_structure = np.hstack((mol_structure, np.ones((num_atoms, 1)) * coupling_type, atom_types,  np.ones((num_atoms, 1))))  # indicator that these rows correspond to an atom not padding
         sample_df[:num_atoms] = mol_structure
