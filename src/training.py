@@ -74,4 +74,9 @@ def train_KFolds(train, test, target, molecules, coupling_types, batch_size=1024
 
                 print('[%d] validation loss: %.5f' % (epoch, val_loss / len(val_loader)))
                 writer.add_scalar('validation loss', val_loss / len(val_loader), epoch)
+
+                val_score = utils.mean_log_mae(yval, eval_set, eval_types)
+                print('[%d] validation score: %.5f' % (epoch, val_score))
+                writer.add_scalar('validation score', val_score, epoch)
+
         writer.close()
