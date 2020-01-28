@@ -29,9 +29,13 @@ class PointCNN(nn.Module):
         x = x.view(x.shape[0], x.shape[1])
 
         x = self.dense1(x)
+        x = self.relu(x)
         x = self.dense2(x)
+        x = self.relu(x)
         x = self.dense3(x)
+        x = self.relu(x)
         x = self.dense4(x)
+        x = self.relu(x)
         x = self.dense5(x)
         x = x.view(x.shape[0])
 
