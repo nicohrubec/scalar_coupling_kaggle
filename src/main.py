@@ -9,6 +9,6 @@ if preprocess:
 else:
     train, test, target, molecules, types = preprocessing.load_preprocessed(debug=debug)
 
-training.train_KFolds(train, test, target, molecules, n_folds=5, debug=debug)
+training.train_KFolds(train, test, target, molecules, types, n_folds=5, debug=debug)
 
 

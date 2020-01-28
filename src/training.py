@@ -10,7 +10,7 @@ from torch.utils.tensorboard import SummaryWriter
 import time
 
 
-def train_KFolds(train, test, target, molecules, batch_size=1024, n_folds=5, seed=42, debug=False):
+def train_KFolds(train, test, target, molecules, coupling_types, batch_size=1024, n_folds=5, seed=42, debug=False):
     oof = np.zeros(len(train))
     preds = np.zeros(len(test))
     gkf = GroupKFold(n_splits=n_folds)
@@ -24,6 +24,7 @@ def train_KFolds(train, test, target, molecules, batch_size=1024, n_folds=5, see
                 continue
         xtrain, ytrain = torch.from_numpy(train[train_idx]), torch.from_numpy(target[train_idx])
         xval, yval = torch.from_numpy(train[val_idx]), torch.from_numpy(target[val_idx])
+        eval_types = coupling_types[val_idx]
 
         train_set = TensorDataset(xtrain, ytrain)
         val_set = TensorDataset(xval, yval)
@@ -65,7 +66,11 @@ def train_KFolds(train, test, target, molecules, batch_size=1024, n_folds=5, see
                     outputs = model(features)
                     loss = criterion(outputs, targets)
                     val_loss += loss.item()
-                    # oof[(i * batch_size):((i+1)*batch_size)] = outputs.cpu().numpy()
+                    oof[val_idx] = outputs.cpu().numpy()
+                    if i == 0:
+                        eval_set = outputs.cpu().numpy()
+                    else:
+                        eval_set = np.vstack(eval_set, outputs.cpu.numpy())
 
                 print('[%d] validation loss: %.5f' % (epoch, val_loss / len(val_loader)))
                 writer.add_scalar('validation loss', val_loss / len(val_loader), epoch)
