@@ -17,6 +17,7 @@ def do_preprocessing(debug=False, save=True):
 
     target = train.pop('scalar_coupling_constant')
     molecules = train.molecule_name.values
+    types = train.type.values
 
     train, test, structures = encode_categories(train, test, structures)
 
@@ -29,13 +30,15 @@ def do_preprocessing(debug=False, save=True):
             np.save(configs.test_fin_debug, test)
             np.save(configs.target_fin_debug, target)
             np.save(configs.molecules_fin_debug, molecules)
+            np.save(configs.types_fin_debug, types)
         else:
             np.save(configs.train_fin, train)
             np.save(configs.test_fin, test)
             np.save(configs.target_fin, target)
             np.save(configs.molecules_fin, molecules)
+            np.save(configs.types_fin_debug, types)
 
-    return train, test, target, molecules
+    return train, test, target, molecules, types
 
 
 def encode_categories(train, test, structures):
@@ -55,10 +58,12 @@ def encode_categories(train, test, structures):
 def load_preprocessed(debug=False):  # returns train, test, target, molecules
     if debug:
         return np.load(configs.train_fin_debug), np.load(configs.test_fin_debug), np.load(configs.target_fin_debug), \
-               np.load(configs.molecules_fin_debug, allow_pickle=True)
+               np.load(configs.molecules_fin_debug, allow_pickle=True), \
+               np.load(configs.types_fin_debug, allow_pickle=True)
     else:
         return np.load(configs.train_fin), np.load(configs.test_fin), np.load(configs.target_fin), \
-               np.load(configs.molecules_fin, allow_pickle=True)
+               np.load(configs.molecules_fin, allow_pickle=True), \
+               np.load(configs.types_fin, allow_pickle=True)
 
 
 def get_representation(df, structures):
