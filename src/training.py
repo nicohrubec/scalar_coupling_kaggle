@@ -66,11 +66,11 @@ def train_KFolds(train, test, target, molecules, coupling_types, batch_size=1024
                     outputs = model(features)
                     loss = criterion(outputs, targets)
                     val_loss += loss.item()
-                    oof[val_idx] = outputs.cpu().numpy()
+
                     if i == 0:
                         eval_set = outputs.cpu().numpy()
                     else:
-                        eval_set = np.vstack(eval_set, outputs.cpu.numpy())
+                        eval_set = np.append(eval_set, outputs.cpu().numpy())
 
                 print('[%d] validation loss: %.5f' % (epoch, val_loss / len(val_loader)))
                 writer.add_scalar('validation loss', val_loss / len(val_loader), epoch)
