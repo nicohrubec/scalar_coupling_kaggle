@@ -36,7 +36,7 @@ def do_preprocessing(debug=False, save=True):
             np.save(configs.test_fin, test)
             np.save(configs.target_fin, target)
             np.save(configs.molecules_fin, molecules)
-            np.save(configs.types_fin_debug, types)
+            np.save(configs.types_fin, types)
 
     return train, test, target, molecules, types
 
