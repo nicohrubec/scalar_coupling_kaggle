@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.optim as optim
 from src.model import PointCNN
 from src import utils
+from src import configs
 from torch.utils.tensorboard import SummaryWriter
 import time
 
@@ -36,7 +37,9 @@ def train_KFolds(train, test, target, molecules, coupling_types, batch_size=1024
         optimizer = optim.Adam(model.parameters(), lr=.0003)
 
         summary_path = 'runs/' + time.strftime("%Y%m%d-%H%M%S")
+        model_path = configs.models_folder / time.strftime("%Y%m%d-%H%M%S")
         writer = SummaryWriter(summary_path)
+        best_val_score = 2.0
 
         for epoch in range(1, 70):
             trn_loss = 0.0
@@ -78,5 +81,9 @@ def train_KFolds(train, test, target, molecules, coupling_types, batch_size=1024
                 val_score = utils.mean_log_mae(yval, eval_set, eval_types)
                 print('[%d] validation score: %.5f' % (epoch, val_score))
                 writer.add_scalar('validation score', val_score, epoch)
+
+                if val_score < best_val_score:
+                    torch.save(model.state_dict(), model_path)
+                    best_val_score = val_score
 
         writer.close()
